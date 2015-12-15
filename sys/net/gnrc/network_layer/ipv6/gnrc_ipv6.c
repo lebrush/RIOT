@@ -85,7 +85,8 @@ kernel_pid_t gnrc_ipv6_init(void)
 {
     if (gnrc_ipv6_pid == KERNEL_PID_UNDEF) {
         gnrc_ipv6_pid = thread_create(_stack, sizeof(_stack), GNRC_IPV6_PRIO,
-                                      CREATE_STACKTEST, _event_loop, NULL, "ipv6");
+                                      THREAD_CREATE_STACKTEST,
+                                      _event_loop, NULL, "ipv6");
     }
 
 #ifdef MODULE_FIB
@@ -790,7 +791,7 @@ static void _receive(gnrc_pktsnip_t *pkt)
 
 #ifdef MODULE_GNRC_IPV6_ROUTER    /* only routers redirect */
         /* redirect to next hop */
-        DEBUG("ipv6: decrement hop limit to %" PRIu8 "\n", hdr->hl - 1);
+        DEBUG("ipv6: decrement hop limit to %" PRIu8 "\n", (uint8_t) (hdr->hl - 1));
 
         /* RFC 4291, section 2.5.6 states: "Routers must not forward any
          * packets with Link-Local source or destination addresses to other

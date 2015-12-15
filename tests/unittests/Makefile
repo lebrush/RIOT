@@ -3,9 +3,9 @@ include ../Makefile.tests_common
 
 BOARD_INSUFFICIENT_MEMORY := airfy-beacon chronos msb-430 msb-430h pca10000 \
                           pca10005 spark-core stm32f0discovery \
-                          telosb wsn430-v1_3b wsn430-v1_4 z1 nucleo-f334 \
-                          yunjia-nrf51822 samr21-xpro arduino-mega2560 \
-                          airfy-beacon nrf51dongle nrf6310 weio
+                          telosb wsn430-v1_3b wsn430-v1_4 z1 nucleo-f103 \
+                          nucleo-f334 yunjia-nrf51822 samr21-xpro \
+                          arduino-mega2560 airfy-beacon nrf51dongle nrf6310 weio
 
 USEMODULE += embunit
 
@@ -13,6 +13,20 @@ ifeq (, $(filter tests-%, $(MAKECMDGOALS)))
     UNIT_TESTS := $(foreach d,$(wildcard tests-*/Makefile),$(shell dirname $(d)))
 else
     UNIT_TESTS := $(filter tests-%, $(MAKECMDGOALS))
+endif
+
+AVR_BOARDS := arduino-mega2560
+DISABLE_TEST_FOR_AVR := tests-relic
+
+MSP430_BOARDS :=  chronos msb-430 msb-430h telosb wsn430-v1_3b wsn430-v1_4 z1
+DISABLE_TEST_FOR_MSP430 := tests-relic
+
+ifneq (, $(filter $(AVR_BOARDS), $(BOARD)))
+UNIT_TESTS := $(filter-out $(DISABLE_TEST_FOR_AVR), $(UNIT_TESTS))
+endif
+
+ifneq (, $(filter $(MSP430_BOARDS), $(BOARD)))
+UNIT_TESTS := $(filter-out $(DISABLE_TEST_FOR_AVR), $(UNIT_TESTS))
 endif
 
 DISABLE_MODULE += auto_init
