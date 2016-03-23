@@ -123,7 +123,7 @@ void auto_init(void)
 #endif
 #ifdef MODULE_MCI
     DEBUG("Auto init mci module.\n");
-    MCI_initialize();
+    mci_initialize();
 #endif
 #ifdef MODULE_PROFILING
     extern void profiling_init(void);
