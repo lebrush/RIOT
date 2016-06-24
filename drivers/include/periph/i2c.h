@@ -113,7 +113,7 @@ typedef unsigned int i2c_t;
 typedef enum {
     I2C_SPEED_LOW = 0,      /**< low speed mode:    ~10kbit/s */
     I2C_SPEED_NORMAL,       /**< normal mode:       ~100kbit/s */
-    I2C_SPEED_FAST,         /**< fast mode:         ~400kbit/sj */
+    I2C_SPEED_FAST,         /**< fast mode:         ~400kbit/s */
     I2C_SPEED_FAST_PLUS,    /**< fast plus mode:    ~1Mbit/s */
     I2C_SPEED_HIGH,         /**< high speed mode:   ~3.4Mbit/s */
 } i2c_speed_t;
