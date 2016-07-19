@@ -59,6 +59,13 @@
 #define RAPDU_MAX_DATA_LEN            (PN532_BUFFER_LEN - BUFF_DATA_START - 5)
 #define CAPDU_MAX_DATA_LEN            (PN532_BUFFER_LEN - BUFF_DATA_START - 1)
 
+/* Constants and magic numbers */
+#define MIFARE_CLASSIC_BLOCK_SIZE     (16)
+#define RESET_TOGGLE_SLEEP            (400000)
+#define RESET_BACKOFF                 (10000)
+#define HOST_TO_PN532                 (0xD4)
+#define PN532_TO_HOST                 (0xD5)
+
 /* Length for passive listings */
 #define LIST_PASSIVE_LEN_14443(num)   (num * 20)
 
@@ -87,9 +94,9 @@ void pn532_reset(pn532_t *dev)
 
     DEBUG("pn532: reset\n");
     gpio_clear(dev->conf->reset);
-    xtimer_usleep(400000);
+    xtimer_usleep(RESET_TOGGLE_SLEEP);
     gpio_set(dev->conf->reset);
-    xtimer_usleep(10000);
+    xtimer_usleep(RESET_BACKOFF);
 }
 
 int pn532_init(pn532_t *dev, const pn532_params_t *params)
@@ -177,7 +184,7 @@ static int send_cmd(pn532_t *dev, char *buff, unsigned len)
         pos = 8;
     }
 
-    buff[pos] = 0xD4;
+    buff[pos] = HOST_TO_PN532;
     checksum = chksum(&buff[pos], len);
 
     len += pos;
@@ -229,7 +236,7 @@ static int read_command(pn532_t *dev, char *buff, unsigned len, int expected_cmd
         fi = 6;
     }
 
-    if (lc != 0 || lp >= 265 || buff[fi] != 0xD5) {
+    if (lc != 0 || lp >= 265 || buff[fi] != PN532_TO_HOST) {
         return -r;
     }
 
@@ -485,7 +492,7 @@ int pn532_mifareclassic_write(pn532_t *dev, char *idata, nfc_iso14443a_t *card,
         buff[BUFF_DATA_START    ] = card->target;
         buff[BUFF_DATA_START + 1] = MIFARE_CMD_WRITE;
         buff[BUFF_DATA_START + 2] = block; /* current block */
-        memcpy(&buff[BUFF_DATA_START - 1 + 4], idata, 16);
+        memcpy(&buff[BUFF_DATA_START + 3], idata, MIFARE_CLASSIC_BLOCK_SIZE);
 
         if (send_rcv(dev, buff, 19, 1) == 1) {
             ret = buff[0];
@@ -518,7 +525,7 @@ int pn532_mifareclassic_read(pn532_t *dev, char *odata, nfc_iso14443a_t *card,
                              unsigned block)
 {
     if (card->auth) {
-        return pn532_mifare_read(dev, odata, card, block, 16);
+        return pn532_mifare_read(dev, odata, card, block, MIFARE_CLASSIC_BLOCK_SIZE);
     }
     else {
         return -1;
