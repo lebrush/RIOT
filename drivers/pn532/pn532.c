@@ -155,21 +155,6 @@ static int _read(pn532_t *dev, char *buff, unsigned len)
 
 static int send_cmd(pn532_t *dev, char *buff, unsigned len)
 {
-/*
- * PN532 information frame format
- *
- * 0  1  2  3  4  5  6            M
- * +--+--+--+--+--+--+--+--+---+--+--+--+
- * |00|00|FF|LP|LC|FI|D0|D1|...|Dn|CS|00|
- * +--+--+--+--+--+--+--+--+---+--+--+--+
- * 00: 0x00
- * FF: 0xFF
- * LP: packet length (including FI)
- * LC: packet length checksum [LEN + LCS] = 0x00
- * FI: frame identifier (D4: host -> controller, D5: controller -> host)
- * Dx: data
- * CS: checksum [FI+D0+D1+...+Dn+CS] = 0x00
- */
     unsigned pos, checksum;
 
     buff[0] = 0x00;
@@ -207,7 +192,7 @@ static void wait_ready(pn532_t *dev)
     mutex_lock(&dev->trap);
 }
 
-/* Returns >0 payload len (or <0 received len but not as expected */
+/* Returns >0 payload len (or <0 received len but not as expected) */
 static int read_command(pn532_t *dev, char *buff, unsigned len, int expected_cmd)
 {
     int r;
@@ -467,12 +452,14 @@ int pn532_mifareclassic_authenticate(pn532_t *dev, nfc_iso14443a_t *card,
     buff[BUFF_DATA_START + 1] = keyid;
     buff[BUFF_DATA_START + 2] = block; /* current block */
 
-    /* key */
+    /*
+     * The card ID directly follows the key in the buffer
+     * The key consists of 6 bytes and starts at offset 3
+     */
     for (int i = 0; i < 6; i++) {
         buff[BUFF_DATA_START + 3 + i] = key[i];
     }
 
-    /* id */
     for (int i = 0; i < card->id_len; i++) {
         buff[BUFF_DATA_START + 9 + i] = card->id[i];
     }

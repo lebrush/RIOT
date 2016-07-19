@@ -53,7 +53,7 @@ typedef struct {
  * can be written in chunks.
  */
 #ifndef PN532_BUFFER_LEN
-#define PN532_BUFFER_LEN     64
+#define PN532_BUFFER_LEN     (64)
 #endif
 
 /**
@@ -145,6 +145,7 @@ void pn532_reset(pn532_t *dev);
  *  @param[in]  params      configuration parameters
  *
  * @return                  0 on success
+ * @return                  <0 i2c initialization error (@see i2c_init_master)
  */
 int pn532_init(pn532_t *dev, const pn532_params_t *params);
 
@@ -170,6 +171,8 @@ int pn532_fw_version(pn532_t *dev, uint32_t *fw_ver);
  * Refer to the datasheet for a comprehensive list of registers and meanings.
  * For SFR registers the high byte must be set to 0xff.
  *
+ * http://www.nxp.com/documents/user_manual/141520.pdf
+ *
  * @param[in]  dev          target device
  * @param[out] out          value of the register
  * @param[in]  addr         address of the register to read
@@ -182,6 +185,8 @@ int pn532_read_reg(pn532_t *dev, char *out, unsigned addr);
  * @brief Write register of the pn532
  *
  * Refer to the datasheet for a comprehensive list of registers and meanings.
+ *
+ * http://www.nxp.com/documents/user_manual/141520.pdf
  *
  * @param[in]  dev          target device
  * @param[in]  addr         address of the register to read
