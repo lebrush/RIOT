@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "assert.h"
 #include "xtimer.h"
 #include "mutex.h"
 #include "pn532.h"
@@ -82,6 +83,8 @@ static void _nfc_event(void *dev)
 
 void pn532_reset(pn532_t *dev)
 {
+    assert(dev != NULL);
+
     DEBUG("pn532: reset\n");
     gpio_clear(dev->conf->reset);
     xtimer_usleep(400000);
@@ -91,6 +94,8 @@ void pn532_reset(pn532_t *dev)
 
 int pn532_init(pn532_t *dev, const pn532_params_t *params)
 {
+    assert(dev != NULL);
+
     int ret;
 
     dev->conf = params;
@@ -288,6 +293,8 @@ static int send_check_ack(pn532_t *dev, char *buff, unsigned len)
 /* sendl: send length, recvl: receive payload length */
 static int send_rcv(pn532_t *dev, char *buff, unsigned sendl, unsigned recvl)
 {
+    assert(dev != NULL);
+
     int expected_cmd = buff[BUFF_CMD_START] + 1;
 
     if (send_check_ack(dev, buff, sendl + 1)) {
