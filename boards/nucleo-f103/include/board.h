@@ -39,6 +39,26 @@ extern "C" {
 #define XTIMER_BACKOFF      5
 /** @} */
 
+#define CAN_NUMOF           (1U)
+#define CAN_0_EN            1
+#define CAN_1_EN            0
+#define CAN_IRQ_PRIO        0
+
+#define CAN_0_DEV           CAN1
+#define CAN_0_CLOCKEN()     (RCC->APB1ENR |= RCC_APB1ENR_CAN1EN)
+
+#define CAN_0_RX_PIN        GPIO(PORT_B, 8) // remapped
+#define CAN_0_TX_PIN        GPIO(PORT_B, 9) // remapped
+#define CAN_0_EXT_ID        1 /* use extended identifier (29-bit) */
+
+#define CAN_0_BUS_BRP       35
+#define CAN_0_BUS_TS1       5
+#define CAN_0_BUS_TS2       6
+#define CAN_0_BUS_SJW       3
+
+#define CAN_0_RCV_ISR0      isr_usb_lp_can1_rx0
+#define CAN_0_RCV_ISR1      isr_can1_rx1
+
 #ifdef __cplusplus
 }
 #endif
