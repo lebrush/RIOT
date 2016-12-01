@@ -24,24 +24,48 @@ extern "C" {
 
 #include "mutex.h"
 #include "periph/i2c.h"
+#include "periph/spi.h"
 #include "periph/gpio.h"
 #include <stdint.h>
+
+#if !defined(PN532_SUPPORT_I2C) && !defined(PN532_SUPPORT_SPI)
+#error Please define PN532_SUPPORT_I2C and/or PN532_SUPPORT_SPI to enable \
+    the functionality on this device
+#endif
 
 /**
  * @brief Data structure with the configuration parameters
  */
 typedef struct {
-    i2c_t i2c;                  /** I2C device */
+    union {
+#ifdef PN532_SUPPORT_I2C
+        i2c_t i2c;              /** I2C device */
+#endif
+#ifdef PN532_SUPPORT_SPI
+        spi_t spi;              /** SPI device */
+#endif
+    };
     gpio_t reset;               /** Reset pin */
     gpio_t irq;                 /** Interrupt pin */
+#ifdef PN532_SUPPORT_SPI
+    gpio_t nss;                  /** Chip Select pin (only SPI) */
+#endif
 } pn532_params_t;
 
+/**
+ * @brief Working mode of the PN532
+ */
+typedef enum {
+    PN532_I2C,
+    PN532_SPI
+} pn532_mode_t;
 
 /**
  * @brief Device descriptor for the PN532
  */
 typedef struct {
     const pn532_params_t *conf;
+    pn532_mode_t mode;
     mutex_t trap;
 } pn532_t;
 
@@ -139,15 +163,40 @@ void pn532_reset(pn532_t *dev);
  * @brief Initialize the module and peripherals
  *
  * This is the first method to be called in order to interact with the pn532.
- * It configures the GPIOs and the i2c interface.
+ * It configures the GPIOs and the i2c/spi interface (depending on @p mode).
  *
  *  @param[in]  dev         target device
  *  @param[in]  params      configuration parameters
+ *  @param[in]  mode        initialization mode
  *
  * @return                  0 on success
- * @return                  <0 i2c initialization error (@see i2c_init_master)
+ * @return                  <0 i2c/spi initialization error, the value is given 
+ *                          by the i2c/spi init method.
  */
-int pn532_init(pn532_t *dev, const pn532_params_t *params);
+int pn532_init(pn532_t *dev, const pn532_params_t *params, pn532_mode_t mode);
+
+
+#if defined(PN532_SUPPORT_I2C) || DOXYGEN
+/**
+ * @brief Initialization of PN532 using i2c
+ *
+ * @see pn532_init for parameter and return value details
+ */
+static inline int pn532_init_i2c(pn532_t *dev, const pn532_params_t *params) {
+    return pn532_init(dev, params, PN532_I2C);
+}
+#endif
+
+#if defined(PN532_SUPPORT_SPI) || DOXYGEN
+/**
+ * @brief Initialization of PN532 using spi
+ *
+ * @see pn532_init for parameter and return value details
+ */
+static inline int pn532_init_spi(pn532_t *dev, const pn532_params_t *params) {
+    return pn532_init(dev, params, PN532_SPI);
+}
+#endif
 
 /**
  * @brief Get the firmware version of the pn532
@@ -219,6 +268,7 @@ int pn532_sam_configuration(pn532_t *dev, pn532_sam_conf_mode_t mode, unsigned t
  *                          (0xff blocks indefinitely)
  *
  * @return                  0 on success
+ * @return                  -1 when no card detected (if non blocking)
  */
 int pn532_get_passive_iso14443a(pn532_t *dev, nfc_iso14443a_t *out, unsigned max_retries);
 

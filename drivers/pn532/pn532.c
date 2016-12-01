@@ -26,6 +26,7 @@
 #include "pn532.h"
 #include "periph/gpio.h"
 #include "periph/i2c.h"
+#include "periph/spi.h"
 
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
@@ -65,6 +66,10 @@
 #define RESET_BACKOFF                 (10000)
 #define HOST_TO_PN532                 (0xD4)
 #define PN532_TO_HOST                 (0xD5)
+#define SPI_DATA_WRITE                (0x80)
+#define SPI_STATUS_READING            (0x40)
+#define SPI_DATA_READ                 (0xC0)
+#define SPI_WRITE_DELAY_US            (2000)
 
 /* Length for passive listings */
 #define LIST_PASSIVE_LEN_14443(num)   (num * 20)
@@ -99,11 +104,11 @@ void pn532_reset(pn532_t *dev)
     xtimer_usleep(RESET_BACKOFF);
 }
 
-int pn532_init(pn532_t *dev, const pn532_params_t *params)
+int pn532_init(pn532_t *dev, const pn532_params_t *params, pn532_mode_t mode)
 {
     assert(dev != NULL);
 
-    int ret;
+    int ret = -1;
 
     dev->conf = params;
 
@@ -112,8 +117,20 @@ int pn532_init(pn532_t *dev, const pn532_params_t *params)
 
     gpio_init(dev->conf->reset, GPIO_OUT);
     gpio_set(dev->conf->reset);
+    dev->mode = mode;
+    if (mode == PN532_I2C) {
+#ifdef PN532_SUPPORT_I2C
+        ret = i2c_init_master(dev->conf->i2c, I2C_SPEED_NORMAL);
+#endif
+    } else {
+#ifdef PN532_SUPPORT_SPI
+        ret = spi_init_master(dev->conf->spi, SPI_CONF_FIRST_RISING,
+                SPI_SPEED_1MHZ);
+        gpio_init(dev->conf->nss, GPIO_OUT);
+        gpio_set(dev->conf->nss);
+#endif
+    }
 
-    ret = i2c_init_master(dev->conf->i2c, I2C_SPEED_NORMAL);
     if (ret == 0) {
         pn532_reset(dev);
     }
@@ -134,29 +151,76 @@ static unsigned char chksum(char *b, unsigned len)
     return c;
 }
 
+static void reverse(char *buff, unsigned len)
+{
+    while(len--) {
+        buff[len] = (buff[len] & 0xF0) >> 4 | (buff[len] & 0x0F) << 4;
+        buff[len] = (buff[len] & 0xCC) >> 2 | (buff[len] & 0x33) << 2;
+        buff[len] = (buff[len] & 0xAA) >> 1 | (buff[len] & 0x55) << 1;
+    }
+}
+
 static int _write(pn532_t *dev, char *buff, unsigned len)
 {
-    int ret;
+    int ret = -1;
 
-    i2c_acquire(dev->conf->i2c);
+    (void)buff;
+    (void)len;
+
+    if (dev->mode == PN532_I2C) {
+#ifdef PN532_SUPPORT_I2C
+        i2c_acquire(dev->conf->i2c);
+        ret = i2c_write_bytes(dev->conf->i2c, PN532_I2C_ADDRESS, buff, len);
+        i2c_release(dev->conf->i2c);
+#endif
+    } else {
+#ifdef PN532_SUPPORT_SPI
+        spi_acquire(dev->conf->spi);
+        gpio_clear(dev->conf->nss);
+        xtimer_usleep(SPI_WRITE_DELAY_US);
+        reverse(buff, len);
+        spi_transfer_byte(dev->conf->spi, SPI_DATA_WRITE, NULL);
+        ret = spi_transfer_bytes(dev->conf->spi, buff, NULL, len);
+        gpio_set(dev->conf->nss);
+        spi_release(dev->conf->spi);
+#endif
+    }
     DEBUG("pn532: -> ");
     PRINTBUFF(buff, len);
-    ret = i2c_write_bytes(dev->conf->i2c, PN532_I2C_ADDRESS, buff, len);
-    i2c_release(dev->conf->i2c);
     return ret;
 }
 
 static int _read(pn532_t *dev, char *buff, unsigned len)
 {
-    /* len, +1 for 0x01 after read is accepted */
-    int ret;
+    int ret = -1;
+    
+    (void)buff;
+    (void)len;
 
-    i2c_acquire(dev->conf->i2c);
-    ret = i2c_read_bytes(dev->conf->i2c, PN532_I2C_ADDRESS, buff, len + 1);
-    i2c_release(dev->conf->i2c);
-
+    if (dev->mode == PN532_I2C) {
+#ifdef PN532_SUPPORT_I2C
+        i2c_acquire(dev->conf->i2c);
+        /* len+1 for RDY after read is accepted */
+        ret = i2c_read_bytes(dev->conf->i2c, PN532_I2C_ADDRESS, buff, len + 1);
+        i2c_release(dev->conf->i2c);
+#endif
+    } else {
+#ifdef PN532_SUPPORT_SPI
+        spi_acquire(dev->conf->spi);
+        gpio_clear(dev->conf->nss);
+        spi_transfer_byte(dev->conf->spi, SPI_DATA_READ, NULL);
+        ret = spi_transfer_bytes(dev->conf->spi, 0x00, &buff[1], len);
+        gpio_set(dev->conf->nss);
+        spi_release(dev->conf->spi);
+        if (ret >= 0) {
+            buff[0] = 0x80;
+            reverse(buff, ret);
+            ret += 1;
+        }
+#endif
+    }
     DEBUG("pn532: <- ");
-    PRINTBUFF(buff, r);
+    PRINTBUFF(buff, len);
     return ret;
 }
 
