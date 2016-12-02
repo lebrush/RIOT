@@ -28,4 +28,8 @@ void board_init(void)
 
     /* initialize the boards LEDs */
     gpio_init(LED0_PIN, GPIO_OUT);
+
+    /* pin remappings */
+    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+    AFIO->MAPR |= AFIO_MAPR_I2C1_REMAP;
 }

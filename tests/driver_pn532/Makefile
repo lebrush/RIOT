@@ -8,8 +8,8 @@ USEMODULE += pn532
 
 # set default device parameters in case they are undefined
 TEST_PN532_I2C ?= I2C_0
-TEST_PN532_RESET ?= GPIO_PIN\(0,0\)
-TEST_PN532_IRQ ?= GPIO_PIN\(0,1\)
+TEST_PN532_RESET ?= GPIO_PIN\(PORT_B,10\)
+TEST_PN532_IRQ ?= GPIO_PIN\(PORT_B,5\)
 
 # export parameters
 CFLAGS += -DTEST_PN532_I2C=$(TEST_PN532_I2C)
