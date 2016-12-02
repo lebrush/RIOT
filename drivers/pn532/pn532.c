@@ -120,7 +120,7 @@ int pn532_init(pn532_t *dev, const pn532_params_t *params, pn532_mode_t mode)
     dev->mode = mode;
     if (mode == PN532_I2C) {
 #ifdef PN532_SUPPORT_I2C
-        ret = i2c_init_master(dev->conf->i2c, I2C_SPEED_NORMAL);
+        ret = i2c_init_master(dev->conf->i2c, I2C_SPEED_FAST);
 #endif
     } else {
 #ifdef PN532_SUPPORT_SPI
