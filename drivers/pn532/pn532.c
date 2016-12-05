@@ -122,10 +122,11 @@ int pn532_init(pn532_t *dev, const pn532_params_t *params, pn532_mode_t mode)
 #ifdef PN532_SUPPORT_I2C
         ret = i2c_init_master(dev->conf->i2c, I2C_SPEED_FAST);
 #endif
-    } else {
+    }
+    else {
 #ifdef PN532_SUPPORT_SPI
         ret = spi_init_master(dev->conf->spi, SPI_CONF_FIRST_RISING,
-                SPI_SPEED_1MHZ);
+                              SPI_SPEED_1MHZ);
         gpio_init(dev->conf->nss, GPIO_OUT);
         gpio_set(dev->conf->nss);
 #endif
@@ -153,7 +154,7 @@ static unsigned char chksum(char *b, unsigned len)
 
 static void reverse(char *buff, unsigned len)
 {
-    while(len--) {
+    while (len--) {
         buff[len] = (buff[len] & 0xF0) >> 4 | (buff[len] & 0x0F) << 4;
         buff[len] = (buff[len] & 0xCC) >> 2 | (buff[len] & 0x33) << 2;
         buff[len] = (buff[len] & 0xAA) >> 1 | (buff[len] & 0x55) << 1;
@@ -173,7 +174,8 @@ static int _write(pn532_t *dev, char *buff, unsigned len)
         ret = i2c_write_bytes(dev->conf->i2c, PN532_I2C_ADDRESS, buff, len);
         i2c_release(dev->conf->i2c);
 #endif
-    } else {
+    }
+    else {
 #ifdef PN532_SUPPORT_SPI
         spi_acquire(dev->conf->spi);
         gpio_clear(dev->conf->nss);
@@ -193,7 +195,7 @@ static int _write(pn532_t *dev, char *buff, unsigned len)
 static int _read(pn532_t *dev, char *buff, unsigned len)
 {
     int ret = -1;
-    
+
     (void)buff;
     (void)len;
 
@@ -204,7 +206,8 @@ static int _read(pn532_t *dev, char *buff, unsigned len)
         ret = i2c_read_bytes(dev->conf->i2c, PN532_I2C_ADDRESS, buff, len + 1);
         i2c_release(dev->conf->i2c);
 #endif
-    } else {
+    }
+    else {
 #ifdef PN532_SUPPORT_SPI
         spi_acquire(dev->conf->spi);
         gpio_clear(dev->conf->nss);
