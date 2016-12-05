@@ -48,7 +48,7 @@ typedef struct {
     gpio_t reset;               /** Reset pin */
     gpio_t irq;                 /** Interrupt pin */
 #ifdef PN532_SUPPORT_SPI
-    gpio_t nss;                  /** Chip Select pin (only SPI) */
+    gpio_t nss;                 /** Chip Select pin (only SPI) */
 #endif
 } pn532_params_t;
 
@@ -170,7 +170,7 @@ void pn532_reset(pn532_t *dev);
  *  @param[in]  mode        initialization mode
  *
  * @return                  0 on success
- * @return                  <0 i2c/spi initialization error, the value is given 
+ * @return                  <0 i2c/spi initialization error, the value is given
  *                          by the i2c/spi init method.
  */
 int pn532_init(pn532_t *dev, const pn532_params_t *params, pn532_mode_t mode);
@@ -182,7 +182,8 @@ int pn532_init(pn532_t *dev, const pn532_params_t *params, pn532_mode_t mode);
  *
  * @see pn532_init for parameter and return value details
  */
-static inline int pn532_init_i2c(pn532_t *dev, const pn532_params_t *params) {
+static inline int pn532_init_i2c(pn532_t *dev, const pn532_params_t *params)
+{
     return pn532_init(dev, params, PN532_I2C);
 }
 #endif
@@ -193,7 +194,8 @@ static inline int pn532_init_i2c(pn532_t *dev, const pn532_params_t *params) {
  *
  * @see pn532_init for parameter and return value details
  */
-static inline int pn532_init_spi(pn532_t *dev, const pn532_params_t *params) {
+static inline int pn532_init_spi(pn532_t *dev, const pn532_params_t *params)
+{
     return pn532_init(dev, params, PN532_SPI);
 }
 #endif
