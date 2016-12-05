@@ -45,7 +45,7 @@ int main(void)
     static pn532_t pn532;
     unsigned len;
 
-    int ret = pn532_init_i2c(&pn532, &pn532_conf[0]);
+    int ret = pn532_init_spi(&pn532, &pn532_conf[0]);
 
     if (ret != 0) {
         LOG_INFO("init error %d\n", ret);

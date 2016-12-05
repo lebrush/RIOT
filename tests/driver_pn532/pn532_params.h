@@ -19,15 +19,20 @@
 #ifndef PN532_PARAMS_H
 #define PN532_PARAMS_H
 
+#include "board.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 static const pn532_params_t pn532_conf[] = {
     {
-        .i2c = TEST_PN532_I2C,
-        .reset = TEST_PN532_RESET,
-        .irq = TEST_PN532_IRQ,
+        //.i2c = TEST_PN532_I2C,
+
+        .reset = GPIO_PIN(PORT_A, 8),
+        .irq = GPIO_PIN(PORT_B, 10),
+        .nss = GPIO_PIN(PORT_B, 5),
+        .spi = SPI_1,
     },
 };
 

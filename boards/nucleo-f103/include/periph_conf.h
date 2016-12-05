@@ -167,7 +167,7 @@ static const uart_conf_t uart_config[] = {
  */
 #define SPI_NUMOF           (2U)
 #define SPI_0_EN            1
-#define SPI_1_EN            0
+#define SPI_1_EN            1
 #define SPI_IRQ_PRIO        1
 
 /* SPI 0 device config */
