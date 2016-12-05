@@ -281,8 +281,7 @@ static int read_command(pn532_t *dev, char *buff, unsigned len, int expected_cmd
      *
      * Note that all offsets are shifted by one since the first byte is always
      * 0x01. */
-    if ((r < len) || (buff[1] != 0x00) || (buff[2] != 0x00) || (buff[3] != 0xFF)
-        || (buff[r - 1] != 0x00)) {
+    if ((r < len) || (buff[1] != 0x00) || (buff[2] != 0x00) || (buff[3] != 0xFF)) {
         return -r;
     }
 
