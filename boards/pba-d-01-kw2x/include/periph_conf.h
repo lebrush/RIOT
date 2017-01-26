@@ -213,10 +213,10 @@ static const spi_conf_t spi_config[] = {
         .pin_clk  = GPIO_PIN(PORT_C, 5),
         .pin_cs   = {
             GPIO_PIN(PORT_C, 4),
-            GPIO_UNDEF,
-            GPIO_UNDEF,
-            GPIO_UNDEF,
-            GPIO_UNDEF
+            SPI_CS_UNDEF,
+            SPI_CS_UNDEF,
+            SPI_CS_UNDEF,
+            SPI_CS_UNDEF
         },
         .simmask  = SIM_SCGC6_SPI0_MASK,
         .pcr      = GPIO_AF_2
@@ -228,10 +228,10 @@ static const spi_conf_t spi_config[] = {
         .pin_clk  = GPIO_PIN(PORT_B, 11),
         .pin_cs   = {
             GPIO_PIN(PORT_B, 10),
-            GPIO_UNDEF,
-            GPIO_UNDEF,
-            GPIO_UNDEF,
-            GPIO_UNDEF
+            SPI_CS_UNDEF,
+            SPI_CS_UNDEF,
+            SPI_CS_UNDEF,
+            SPI_CS_UNDEF
         },
         .simmask  = SIM_SCGC6_SPI1_MASK,
         .pcr      = GPIO_AF_2
