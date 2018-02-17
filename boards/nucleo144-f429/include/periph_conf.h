@@ -255,6 +255,42 @@ static const spi_conf_t spi_config[] = {
 }
 /** @} */
 
+/**
+ * @name ETH configuration
+ * @{
+ */
+#define ETH_NUMOF           (1)
+#define ETH_RX_BUFFER_COUNT (4)
+#define ETH_TX_BUFFER_COUNT (4)
+
+#define ETH_RX_BUFFER_SIZE (1524)
+#define ETH_TX_BUFFER_SIZE (1524)
+
+#define ETH_DMA_ISR        isr_dma2_stream0
+
+static const eth_conf_t eth_config = {
+    .mode = RMII,
+    .mac = { 1, 2, 3, 4, 5, 6 },
+    .speed = ETH_SPEED_100TX_FD,
+    .dma_chan = 0,
+    .dma_stream = 8,
+    .phy_addr = 0x01,
+    .pins = {
+        GPIO_PIN(PORT_G, 11), /* AF11: RMII_TX_EN */
+        GPIO_PIN(PORT_G, 13), /* AF11: RMII_TXD0 */
+        GPIO_PIN(PORT_B, 13), /* AF11: RMII_TXD1 */
+        GPIO_PIN(PORT_C, 4),/* AF11: RMII_RXD0 */
+        GPIO_PIN(PORT_C, 5),/* AF11: RMII_RXD1 */
+        GPIO_PIN(PORT_A, 7),/* AF11: RMII_CRS_DV */
+        GPIO_PIN(PORT_C, 1),/* AF11: RMII_MDC */
+        GPIO_PIN(PORT_A, 2),/* AF11: RMII_MDIO */
+        GPIO_PIN(PORT_A, 1),/* AF11: RMII_REF_CLK */
+    }
+};
+
+/** @} */
+
+
 #ifdef __cplusplus
 }
 #endif
