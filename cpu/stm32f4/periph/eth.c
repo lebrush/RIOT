@@ -433,10 +433,13 @@ void ETH_DMA_ISR(void)
     /* clear DMA done flag */
     int stream = eth_config.dma_stream;
     /* DMA_TypeDef now has  LIFCR and HIFCR */
-    if (stream)
+    /* TODO: figure out a better solution */
+    if (!stream){
 		dma_base(stream)->HIFCR = dma_ifc(stream);
-    else
+	}
+    else{
 		dma_base(stream)->LIFCR = dma_ifc(stream);
+	}
     mutex_unlock(&_dma_sync);
     cortexm_isr_end();
 }
