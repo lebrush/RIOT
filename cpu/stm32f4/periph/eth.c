@@ -432,7 +432,11 @@ void ETH_DMA_ISR(void)
 {
     /* clear DMA done flag */
     int stream = eth_config.dma_stream;
-    dma_base(stream)->IFCR[dma_hl(stream)] = dma_ifc(stream);
+    /* DMA_TypeDef now has  LIFCR and HIFCR */
+    if (stream)
+		dma_base(stream)->HIFCR = dma_ifc(stream);
+    else
+		dma_base(stream)->LIFCR = dma_ifc(stream);
     mutex_unlock(&_dma_sync);
     cortexm_isr_end();
 }
@@ -443,7 +447,7 @@ static int _send(netdev_t *netdev, const struct iovec *vector, unsigned count)
 
     int ret = 0, len = 0;
     mutex_lock(&send_lock);
-    for (int i = 0; i < count && ret <= 0; i++) {
+    for (unsigned int i = 0; i < count && ret <= 0; i++) {
         ret = eth_send(vector[i].iov_base, vector[i].iov_len);
         len += ret;
     }
@@ -517,10 +521,12 @@ static int _set(netdev_t *dev, netopt_t opt, const void *value, size_t max_len)
 
 static int _init(netdev_t *netdev)
 {
+	(void)netdev;  /*unused */
     return eth_init();
 }
 
-const static netdev_driver_t netdev_driver_stm32f4eth = {
+/* Fix  error: 'static' is not at beginning of declaration*/
+static const netdev_driver_t netdev_driver_stm32f4eth = {
     .send = _send,
     .recv = _recv,
     .init = _init,
