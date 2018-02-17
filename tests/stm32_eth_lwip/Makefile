@@ -1,7 +1,8 @@
 APPLICATION = stm32_eth_lwip
 include ../Makefile.tests_common
 
-BOARD := stm32f4discovery
+BOARD := nucleo144-f429
+#alt: stm32f4discovery
 
 FEATURES_REQUIRED += periph_stm32_eth
 
