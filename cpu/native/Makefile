@@ -3,15 +3,24 @@ MODULE = cpu
 DIRS += periph
 DIRS += vfs
 
-ifneq (,$(filter netdev_tap,$(USEMODULE)))
-	DIRS += netdev_tap
+ifeq ($(shell uname -s),Darwin)
+  CFLAGS += -D_XOPEN_SOURCE=600 -D_DARWIN_C_SOURCE
 endif
+
+ifneq (,$(filter netdev_tap,$(USEMODULE)))
+  DIRS += netdev_tap
+endif
+
+ifneq (,$(filter socket_zep,$(USEMODULE)))
+  DIRS += socket_zep
+endif
+
 ifneq (,$(filter mtd_native,$(USEMODULE)))
-	DIRS += mtd
+  DIRS += mtd
 endif
 
 ifneq (,$(filter can_linux,$(USEMODULE)))
-        DIRS += can
+  DIRS += can
 endif
 
 include $(RIOTBASE)/Makefile.base

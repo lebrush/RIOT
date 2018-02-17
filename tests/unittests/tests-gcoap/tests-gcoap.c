@@ -25,19 +25,29 @@
 /*
  * A test set of dummy resources. The resource handlers are set to NULL.
  */
-static const coap_resource_t ressources[] = {
-    { "/test/info/all", (COAP_GET), NULL },
+static const coap_resource_t resources[] = {
+    { "/act/switch", (COAP_GET | COAP_POST), NULL },
     { "/sensor/temp", (COAP_GET), NULL },
-    { "/act/switch", (COAP_GET | COAP_POST), NULL }
+    { "/test/info/all", (COAP_GET), NULL },
+};
+
+static const coap_resource_t resources_second[] = {
+    { "/second/part", (COAP_GET), NULL },
 };
 
 static gcoap_listener_t listener = {
-    .resources     = (coap_resource_t *)&ressources[0],
-    .resources_len = (sizeof(ressources) / sizeof(ressources[0])),
+    .resources     = (coap_resource_t *)&resources[0],
+    .resources_len = (sizeof(resources) / sizeof(resources[0])),
     .next          = NULL
 };
 
-static const char *resource_list_str = "</test/info/all>,</sensor/temp>,</act/switch>";
+static gcoap_listener_t listener_second = {
+    .resources     = (coap_resource_t *)&resources_second[0],
+    .resources_len = (sizeof(resources_second) / sizeof(resources_second[0])),
+    .next          = NULL
+};
+
+static const char *resource_list_str = "</act/switch>,</sensor/temp>,</test/info/all>,</second/part>";
 
 /*
  * Client GET request success case. Test request generation.
@@ -252,6 +262,7 @@ static void test_gcoap__server_get_resource_list(void)
     int size = 0;
 
     gcoap_register_listener(&listener);
+    gcoap_register_listener(&listener_second);
 
     size = gcoap_get_resource_list(NULL, 0, COAP_CT_LINK_FORMAT);
     TEST_ASSERT_EQUAL_INT(strlen(resource_list_str), size);

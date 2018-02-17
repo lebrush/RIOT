@@ -44,7 +44,7 @@ extern "C" {
 #define CC2420_PANID_DEFAULT    (IEEE802154_DEFAULT_PANID)
 
 /**
-  * @brief   Channel configuration
+  * @name    Channel configuration
   * @{
   */
 #define CC2420_CHAN_MIN         (IEEE802154_CHANNEL_MIN)
@@ -53,13 +53,18 @@ extern "C" {
 /** @} */
 
 /**
- * @brief   Default TX power configuration [in dBm]
+ * @name    Default TX power configuration [in dBm]
  * @{
  */
 #define CC2420_TXPOWER_MIN      (-25)
 #define CC2420_TXPOWER_MAX      (0)
 #define CC2420_TXPOWER_DEFAULT  (IEEE802154_DEFAULT_TXPOWER)
 /** @} */
+
+/**
+ * @brief   RSSI offset
+ */
+#define CC2420_RSSI_OFFSET      (-45)
 
 /**
  * @brief   A couple of return values used in this driver
@@ -70,7 +75,6 @@ enum {
 
 /**
  * @brief   Struct holding all parameters needed for device initialization
- * @{
  */
 typedef struct cc2420_params {
     spi_t spi;              /**< SPI bus the device is connected to */
@@ -83,11 +87,9 @@ typedef struct cc2420_params {
     gpio_t pin_vrefen;      /**< pin connected to the Vref enable pin */
     gpio_t pin_reset;       /**< pin connected to the reset pin */
 } cc2420_params_t;
-/** @} */
 
 /**
  * @brief   Device descriptor for CC2420 radio devices
- * @{
  */
 typedef struct {
     /* netdev fields */
@@ -98,7 +100,6 @@ typedef struct {
     uint8_t state;                /**< current state of the radio */
     uint16_t options;             /**< state of used options */
 } cc2420_t;
-/** @} */
 
 /**
  * @brief   Setup the device descriptor for the given device
